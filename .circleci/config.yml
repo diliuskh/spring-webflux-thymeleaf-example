@@ -26,7 +26,7 @@ jobs:
       - run: mvn verify #integration-test
       # now,configured from pom
       #- store_test_results:
-      #    path: target/surfire-reports
+      #    path: target/surefire-reports
 
       - run:
           name: Send To CodeCov
