@@ -3,7 +3,7 @@ workflows:
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:11-jdk-node
+      - image: circleci/openjdk:21-jdk-node
     working_directory: ~/repo
     environment:
       # Customize the VM max heap limit
