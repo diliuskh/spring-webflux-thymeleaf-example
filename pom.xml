@@ -161,19 +161,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>io.brachu</groupId>
-                <artifactId>docker-compose-maven-plugin</artifactId>
-                <version>${docker-compose-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>up</goal>
-                            <goal>down</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 </project>
