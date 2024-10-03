@@ -5,7 +5,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import zatribune.spring.kitchenmaster.data.entities.Recipe;
 
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 @Setter
 @Getter

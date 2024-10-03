@@ -1,0 +1,245 @@
+<div xmlns:th="http://www.thymeleaf.org">
+    <!--specify the encoding type to allow uploading images via html -->
+    <form th:fragment="AddRecipeFragment"
+          th:object="${recipe}"
+          th:action="@{/updateOrSaveRecipe}"
+          id="createRecipeForm"
+          method="POST"
+          class="justify-content-center">
+        <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger m-0">
+            <p th:text="'Please, correct '+${#fields.errors('*').size()}+' error/s below.'"></p>
+        </div>
+        <div class="card">
+            <input type="hidden" th:field="*{id}">
+            <div class="card-header"><h1 th:text="#{mainInformation}">Main Information</h1></div>
+            <div class="card-body container-fluid">
+                <div class="row">
+                    <div class="col container-fluid">
+                        <div class="row position-relative">
+                            <label class="m-1"><span th:text="#{recipe.title}"></span>
+                                <input type="text" class="form-control w-50" id="inputTitle" placeholder="Recipe Name"
+                                       th:field="*{title}">
+                            </label>
+                            <div class="invalid-feedback d-inline-block" th:if="${#fields.hasErrors('title')}">
+                                <ul class="m-0">
+                                    <li th:each="err:${#fields.errors('title')}" th:text="${err}"></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <label class="m-1"><span th:text="#{recipe.prepTime}"></span>
+                                <input type="number" class="form-control w-25" id="inputPrepTime"
+                                       placeholder="minutes"
+                                       th:field="*{prepTime}">
+                            </label>
+                            <div class="invalid-feedback d-inline-block" th:if="${#fields.hasErrors('prepTime')}">
+                                <ul class="m-0">
+                                    <li th:each="err:${#fields.errors('prepTime')}" th:text="${err}"></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <label class="m-1"><span th:text="#{recipe.cookTime}"></span>
+                                <input type="number" class="form-control w-25" id="inputCockTime"
+                                       placeholder="minutes"
+                                       th:field="*{cookTime}">
+                            </label>
+                            <div class="invalid-feedback d-inline-block" th:if="${#fields.hasErrors('cookTime')}">
+                                <ul class="m-0">
+                                    <li th:each="err:${#fields.errors('cookTime')}" th:text="${err}"></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <label class="m-1"><span th:text="#{recipe.difficulty}"></span>
+                                <select class="custom-select mr-sm-2" id="inlineFormCustomSelect"
+                                        th:field="*{difficulty}" required>
+                                    <option selected value="EASY" th:text="#{easy}"></option>
+                                    <option value="MODERATE" th:text="#{moderate}"></option>
+                                    <option value="HARD" th:text="#{hard}"></option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="row">
+                            <label class="m-1"><span th:text="#{recipe.servings}"></span>
+                                <input type="text" class="form-control w-25" id="inputServings"
+                                       placeholder="times"
+                                       th:field="*{servings}">
+                            </label>
+                            <div class="invalid-feedback d-inline-block" th:if="${#fields.hasErrors('servings')}">
+                                <ul class="m-0">
+                                    <li th:each="err:${#fields.errors('servings')}" th:text="${err}"></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row m-1">
+                            <div class="col-12 fw-bold p-0">
+                                <label class="m-1"><span th:text="#{categories}"></span>
+                                    <input type="text" class="form-control w-100" id="inputCategory"
+                                           list="categoriesListContainer"
+                                           onkeyup="$('#categoriesListContainer').load('/listCategories'+'?s='+this.value)">
+                                </label>
+                                <div id="categoriesListContainer" class="autocomplete-items list-group w-25">
+                                </div>
+                            </div>
+                            <div id="selectedCategories" class="col-lg-8 col-md-8 p-0 list-group mt-1">
+                                <a class="list-group-item d-flex justify-content-between p-1 align-items-center text-dark"
+                                   xmlns:th="http://www.thymeleaf.org"
+                                   th:each="category, stat : *{categories}"
+                                   th:attr="data-category-id=${category.id},data-category-description=${category.description}">
+                                    <i th:text="${category.description}"></i>
+                                    <button class='btn btn-secondary' onclick='this.closest("a").remove()'><i
+                                            class='fa fa-trash p-1'></i></button>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col text-center">
+                        <input type="file" accept="image/*" class="file"
+                               onchange="getBase64($('#image'),$('#imgPreview'),this.files[0])"/>
+                        <input type="hidden" th:field="*{image}">
+                        <p th:switch="${recipe.image}">
+                            <img class="img-fluid"
+                                 th:case="null"
+                                 th:id="imgPreview"
+                                 th:src="@{/images/camera.svg}"
+                                 th:width="300"
+                                 th:height="300" alt="image">
+                            <img class="img-fluid"
+                                 th:case="*"
+                                 th:id="imgPreview"
+                                 th:src="@{${recipe.image}}"
+                                 th:width="300"
+                                 th:height="300" alt="image">
+                            <!-- th:src="@{'data:image/png;base64,'+${recipe.image}}" -->
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h1 th:text="#{ingredients}"></h1></div>
+            <div class="card-body table-responsive">
+                <table id="ingredientsTable" class="table table-sm">
+                    <tr>
+                        <th>*</th>
+                        <th th:text="#{amount}"></th>
+                        <th th:text="#{unit}"></th>
+                        <th th:text="#{description}"></th>
+                    </tr>
+                    <tr th:each="ing,ingStat :*{ingredients}" class="ingredient-row">
+                        <td class="p-0" style="vertical-align: middle">
+                            <input class="form-check-input me-1" type="checkbox"
+                                   th:value="*{ingredients[__${ingStat.index}__].id}" aria-label="">
+                            <input type="hidden" class="ingredient-id"
+                                   th:field="*{ingredients[__${ingStat.index}__].id}">
+                            <!-- Required!! put the index.id  not the eng.id-->
+                        </td>
+                        <td class="p-0">
+                            <input class="ingredient-amount"
+                                   th:field="*{ingredients[__${ingStat.index}__].amount}"
+                                   th:value="${ing.amount}" aria-label="">
+                            <div class="invalid-tooltip" onclick="this.style.display='none'"
+                                 th:if="${#fields.hasErrors('ingredients['+__${ingStat.index}__+'].amount')}">
+                                <ul class="m-0">
+                                    <li th:each="err:${#fields.errors('ingredients['+__${ingStat.index}__+'].amount')}"
+                                        th:text="${err}"></li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td class="p-0" style="vertical-align: middle">
+                            <select class="ingredient-unitMeasure-id custom-select mr-sm-2" aria-label=""
+                                    th:field="*{ingredients[__${ingStat.index}__].unitMeasure.id}"
+                                    onchange="selectUnitMeasure(this,this.parentElement.lastElementChild)" required>
+                                <!-- to pass the hidden field-->
+                                onchange="selectUnitMeasure(this,this.parentElement.lastElementChild)" required>
+                                <!-- to pass the hidden field-->
+                                <!--       REMEMBER: compare using the ID -->
+                                <option th:each="unit,unitStat:${unitMeasures}"
+                                        th:value="${unit.id}" th:text="${unit.description}"
+                                        th:selected="(${ing.unitMeasure.id} == ${unit.id})">
+                                </option>
+                            </select>
+                            <input type="hidden" class="ingredient-unitMeasure-description"
+                                   th:name="'ingredients['+__${ingStat.index}__+'].unitMeasure.description'">
+                        </td>
+                        <td class="p-0">
+                            <input class="ingredient-description"
+                                   th:field="*{ingredients[__${ingStat.index}__].description}"
+                                   type="text" th:value="${ing.description}" aria-label="">
+                            <div class="invalid-tooltip" onclick="this.style.display='none'"
+                                 th:if="${#fields.hasErrors('ingredients['+__${ingStat.index}__+'].description')}">
+                                <ul class="m-0">
+                                    <li th:each="err:${#fields.errors('ingredients['+__${ingStat.index}__+'].description')}"
+                                        th:text="${err}"></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <div>
+                    <button class="btn btn-success"
+                            type="button"
+                            onclick="insertIngredient()">
+                        <i class="fa fa-plus d-table-cell"></i>
+                    </button>
+                    <button class="btn btn-warning"
+                            type="button"
+                            onclick='deleteTableRow($("#ingredientsTable"))'>
+                        <i class="fa fa-minus d-table-cell"></i>
+                    </button>
+                </div>
+            </div><!--END of ingredients edit ares-->
+        </div>
+        <div class="card">
+            <div class="card-header"><h1 th:text="#{recipe.directions}"></h1></div>
+            <div class="card-body">
+                    <textarea id="textareaDirections" class="form-control" onload="resizeTextarea(this.id)"
+                              aria-label=""
+                              onkeyup="resizeTextarea(this.id)" th:field="*{directions}"></textarea>
+                <div class="invalid-feedback d-inline-block" th:if="${#fields.hasErrors('directions')}">
+                    <ul class="m-0">
+                        <li th:each="err:${#fields.errors('directions')}" th:text="${err}"></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h1 th:text="#{notes}"></h1></div>
+            <div class="card-body">
+                <input type="hidden" th:field="*{notes.id}">
+                <textarea id="textareaNotes" class="form-control" onload="resizeTextarea(this.id)" aria-label=""
+                          onkeyup="resizeTextarea(this.id)" th:field="*{notes.description}"></textarea>
+                <div class="invalid-feedback d-inline-block" th:if="${#fields.hasErrors('notes.description')}">
+                    <ul class="m-0">
+                        <li th:each="err:${#fields.errors('notes.description ')}" th:text="${err}"></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="card align-items-center">
+        <button th:attr="data-recipe=${recipe.id}" id="btnSubmitRecipe"
+                class="btn btn-primary w-25 m-2" th:height="50" type="submit"
+                onclick="sendData(this.getAttribute('data-recipe'))" th:text="#{save}">
+            Save
+        </button>
+    </div>
+
+    <script th:inline="javascript" >
+        /*<![CDATA[*/
+        const unitMeasures = /*[[${unitMeasures}]]*/'default';
+        //returned object is like: [object Object],[object Object],[object Object]
+        /*]]>*/
+        $(document).ready(function () {
+            resizeTextarea('textareaNotes');
+            resizeTextarea('textareaDirections');
+            document.addEventListener("click", function (e) {
+                closeAllLists(e.target);
+            });
+        });
+    </script>
+</div>
+
+
+
